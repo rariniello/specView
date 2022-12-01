@@ -1,0 +1,8 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>icons/arrow-circle-double-135.png</file>
+    <file>icons/control.png</file>
+    <file>icons/control-pause.png</file>
+    <file>icons/disk.png</file>
+  </qresource>
+</RCC>

@@ -1,0 +1,12 @@
+name: specView
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10.6
+  - numpy=1.23.0
+  - scipy=1.9.1
+  - pyqt=5.15.7
+  - pyqtgraph=0.12.4
+  - pyinstaller=5.1
+  - seabreeze=2.0.3
