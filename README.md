@@ -50,6 +50,17 @@ Test that the application is starting properly
 python specView.py
 ```
 
+### Install drivers on windows
+
+Creating the environment will install seabreeze which includes a command line tool to install drivers for the spectrometers. On windows, run the command line tool by launching anaconda prompt as an Administrator, then activate the environment and run the tool using
+
+```sh
+conda activate specView
+seabreeze_os_setup
+```
+
+Agree to any popups that appear. Look back through the log to verify the driver for the spectrometer model of interest has been installed.
+
 ## Latest Version and Changelogs
 
 The latest version along with release notes can always be found on the project's [releases](https://github.com/rariniello/specView/releases) page.
