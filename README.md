@@ -10,7 +10,7 @@ A simple GUI to acquire, display, and save spectrum acquired from an Ocean Optic
 
 ## Installation
 
-Windows users are supplied self-contained builds of bint on the [latest releases](https://github.com/rariniello/specView/releases/latest) page.
+Windows users are supplied self-contained builds of specView on the [latest releases](https://github.com/rariniello/specView/releases/latest) page.
 
 ## Usage example
 

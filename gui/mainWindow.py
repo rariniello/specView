@@ -1,19 +1,17 @@
-import os
 import numpy as np
 import time
 import seabreeze.spectrometers as sb
 
-from PyQt5.QtWidgets import (
-    QMainWindow, QFileDialog, QAction, QFileDialog
-)
-from PyQt5.QtCore import pyqtSlot, pyqtSignal, QObject, QThread
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QFileDialog
+from PyQt5.QtCore import pyqtSlot, pyqtSignal, QThread, Qt
 
 import gui.ui.ui_MainWindow as ui_MainWindow
 from gui.worker import Worker
+from gui import addinsWindow
 import config
 
-class SpecViewMainWindow(QMainWindow, ui_MainWindow.Ui_MainWindow):
+
+class SpecViewMainWindow(QMainWindow, ui_MainWindow.Ui_SpecView):
     """ Class that handles the main window and the gui functionality.
     
     The spectrometer operates in a different thread from th gui.
@@ -46,6 +44,7 @@ class SpecViewMainWindow(QMainWindow, ui_MainWindow.Ui_MainWindow):
 
         # Steps to initialize the gui
         self.backgroundProgressBar.setMaximum(self.backgroundShotsField.value())
+        self.addinWindow = addinsWindow.AddinsWindow(self)
     
 
     def connectSignalSlots(self):
@@ -66,7 +65,11 @@ class SpecViewMainWindow(QMainWindow, ui_MainWindow.Ui_MainWindow):
         self.averageShotsCheck.stateChanged.connect(self.averageShots)
         self.averageShotsField.editingFinished.connect(self.averageShots)
 
+        self.actionAddins.triggered.connect(self.openAddinsWindow)
 
+
+    # Creating and updating the plot
+    # -----------------------------------------------------------------
     def createSpecPlot(self):
         """ Initializes the pyqtgraph plot used to show the spectrum. """
         plot = self.specPlot
@@ -99,9 +102,42 @@ class SpecViewMainWindow(QMainWindow, ui_MainWindow.Ui_MainWindow):
     def updateSpecPlot(self):
         """ Updates the spectrometer plot. """
         I = self.getI()
+        I = self.sendToAddins(self.lam, I)
         self.plotDataItem.setData(self.lam, I)
+    
+
+    @pyqtSlot()
+    def save(self):
+        """ Saves the currently plotted spectrum to disk. 
+        
+        Saves the exact spectrum shown in the plot, i.e., if the background is subtracted
+        from the plot it will also be subtracted in the saved file.
+        """
+        I = self.getI()
+        filename = QFileDialog.getSaveFileName(self, "Save Spectrum As", config.specViewPath, "Text File (*.txt)")[0]
+        if filename == '':
+            return
+        N = len(I)
+        data = np.zeros((N, 2))
+        data[:, 0] = self.lam
+        data[:, 1] = I
+        np.savetxt(filename, data, header="Wavelength (nm)\tIntensity (counts)")
+    
+
+    @pyqtSlot(int)
+    def showBackground(self, state):
+        """ Shows the current background. """
+        self.updateSpecPlot()
 
 
+    @pyqtSlot(int)
+    def subtractBackground(self, state):
+        """ Shows the plot with the background subtracted. """
+        self.updateSpecPlot()
+
+
+    # Interacting with the spectrometer
+    # -----------------------------------------------------------------
     @pyqtSlot()
     def connectSpec(self):
         """ Creates the worker thread for communicating with the spectrometer.
@@ -142,7 +178,7 @@ class SpecViewMainWindow(QMainWindow, ui_MainWindow.Ui_MainWindow):
     
 
     @pyqtSlot(np.ndarray, np.ndarray)
-    def doUpdate(self, lam: np.ndarray, I: np.ndarray):
+    def doUpdate(self, lam, I):
         """ Updates the plot/gui when a new spectrum is recieved. 
         
         Args:
@@ -171,7 +207,7 @@ class SpecViewMainWindow(QMainWindow, ui_MainWindow.Ui_MainWindow):
         self.lastTime = currentTime
     
 
-    def doBackgroundUpdate(self, lam, I):
+    def doBackgroundUpdate(self, lam: np.ndarray, I: np.ndarray):
         """ Updates the plot/gui and background when a new spectrum is recieved while taking background. 
         
         Args:
@@ -194,12 +230,13 @@ class SpecViewMainWindow(QMainWindow, ui_MainWindow.Ui_MainWindow):
             if self.streamingBeforeBackground:
                 self.streamingBeforeBackground = False
                 self.start()
+            else:
+                self.pauseButton.setEnabled(False)
+                self.startButton.setEnabled(True)
             # Update QUI elements
             self.backgroundProgressBar.setValue(self.maxCount)
             self.showBackgroundCheck.setEnabled(True)
             self.subtractBackgroundCheck.setEnabled(True)
-            self.pauseButton.setEnabled(False)
-            self.startButton.setEnabled(True)
 
 
     @pyqtSlot()
@@ -227,6 +264,7 @@ class SpecViewMainWindow(QMainWindow, ui_MainWindow.Ui_MainWindow):
         self.streaming = True
         self.requestSpectrum.emit()
         self.pauseButton.setEnabled(True)
+        self.startButton.setEnabled(False)
 
 
     @pyqtSlot()
@@ -239,26 +277,11 @@ class SpecViewMainWindow(QMainWindow, ui_MainWindow.Ui_MainWindow):
 
 
     @pyqtSlot()
-    def save(self):
-        """ Saves the spectrum to disk. 
-        
-        Saves the exact spectrum shown in the plot, i.e., if the background is subtracted
-        from the plot it will also be subtracted in the saved file.
-        """
-        I = self.getI()
-        filename = QFileDialog.getSaveFileName(self, "Save Spectrum As", config.specViewPath, "Text File (*.txt)")[0]
-        N = len(I)
-        data = np.zeros((N, 2))
-        data[:, 0] = self.lam
-        data[:, 1] = I
-        np.savetxt(filename, data, header="Wavelength (nm)\tIntensity (counts)")
-
-
-    @pyqtSlot()
     def takeBackground(self):
         """ Starts the background saving process. """
-        # Update GUI elements
+        # Update GUI elements, stop averaging
         self.backgroundProgressBar.reset()
+        self.averageShotsCheck.setChecked(False)
         self.showBackgroundCheck.setChecked(False)
         self.backgroundProgressBar.setMaximum(self.backgroundShotsField.value())
         self.pauseButton.setEnabled(True)
@@ -309,18 +332,6 @@ class SpecViewMainWindow(QMainWindow, ui_MainWindow.Ui_MainWindow):
         self.requestExposureChange.emit(1000)
 
 
-    @pyqtSlot(int)
-    def showBackground(self, state):
-        """ Shows the current background. """
-        self.updateSpecPlot()
-
-
-    @pyqtSlot(int)
-    def subtractBackground(self, state):
-        """ Shows the plot with the background subtracted. """
-        self.updateSpecPlot()
-
-
     @pyqtSlot()
     def averageShots(self):
         """ Tells the spectrometer thread to start averaging over multiple shots. """
@@ -347,4 +358,25 @@ class SpecViewMainWindow(QMainWindow, ui_MainWindow.Ui_MainWindow):
     def closeEvent(self, event):
         """ Override the close method to disconnect the spectrometer. """
         self.specClosed.emit()
+        self.addinWindow.saveCurrentAddins()
         event.accept()
+    
+
+    # Addin managment
+    # -----------------------------------------------------------------
+    def sendToAddins(self, lam: np.ndarray, I: np.ndarray) -> np.ndarray:
+        """ Loops through the active addins, passing the spectrum to each in turn. 
+        
+        Each addin is free to modify the spectrum before it is sent to the next addin.
+        The order of the addins determines the order they receive the spectrum in.
+        """
+        addins = self.addinWindow.getActiveAddins()
+        for addin in addins:
+            I = addin.processSpectrum(lam, I)
+        return I
+    
+
+    @pyqtSlot()
+    def openAddinsWindow(self):
+        """ Opens the window used to manage addins. """
+        self.addinWindow.show()

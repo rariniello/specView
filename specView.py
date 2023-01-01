@@ -34,6 +34,13 @@ if __name__ == '__main__':
 
 
     from gui import mainWindow
+
+    # If we are testing without a spectrometer, monkey patch the seabreeze library
+    if False:
+        import tests.seatest as sb
+        from gui import worker
+        mainWindow.sb = sb
+        worker.sb = sb
     
     mainWin = mainWindow.SpecViewMainWindow()
     

@@ -17,6 +17,7 @@ class Worker(QObject):
         self.averaging = False
         self.averageArray = None
         self.index = 0
+        self.initialCounter = 0
         self.averageShots = 0
         self.spec = spec
     
@@ -58,6 +59,9 @@ class Worker(QObject):
             self.averageArray[self.index] = I
             self.index = (self.index + 1) % self.averageShots
             I = np.average(self.averageArray, axis=0)
+            if self.initialCounter < self.averageShots:
+                self.initialCounter += 1
+                I = I * (self.averageShots / self.initialCounter)
         self.update.emit(lam, I)
 
     
@@ -72,6 +76,7 @@ class Worker(QObject):
         self.averageArray = np.zeros((shots, N))
         self.averageShots = shots
         self.index = 0
+        self.initialCounter = 0
         self.averaging = True
 
     
