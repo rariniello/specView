@@ -4,7 +4,7 @@
 
 [![License][license]][license-url]
 
-A simple GUI to acquire, display, and save spectrum acquired from an Ocean Optics spectrometer. Includes background subtraction and averaging over several shots.
+A simple GUI to acquire, display, and save spectrum acquired from an Ocean Optics spectrometer. Includes background subtraction and averaging over multiple shots.
 
 ![specView Interface](header.png)
 
@@ -52,7 +52,7 @@ python specView.py
 
 ### Install drivers on windows
 
-Creating the environment will install seabreeze which includes a command line tool to install drivers for the spectrometers. On windows, run the command line tool by launching anaconda prompt as an Administrator, then activate the environment and run the tool using
+Creating the environment will install seabreeze which includes a command line tool to install drivers for the spectrometers. On windows, run the command line tool by launching an anaconda prompt as an Administrator, then activate the environment and run the tool using
 
 ```sh
 conda activate specView

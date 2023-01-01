@@ -9,4 +9,5 @@ dependencies:
   - pyqt=5.15.7
   - pyqtgraph=0.12.4
   - pyinstaller=5.1
+  - pyyaml=6.0
   - seabreeze=2.0.3

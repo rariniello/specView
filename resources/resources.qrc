@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="icons">
+    <file>icons/color.png</file>
     <file>icons/gear.png</file>
     <file>icons/application-plus.png</file>
     <file>icons/arrow-circle-double-135.png</file>
