@@ -420,6 +420,9 @@
    <addaction name="separator"/>
   </widget>
   <action name="actionSettings">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="../resources/resources.qrc">
      <normaloff>:/icons/icons/gear.png</normaloff>:/icons/icons/gear.png</iconset>

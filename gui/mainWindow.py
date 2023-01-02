@@ -3,7 +3,7 @@ import time
 import seabreeze.spectrometers as sb
 
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QFileDialog
-from PyQt5.QtCore import pyqtSlot, pyqtSignal, QThread, Qt
+from PyQt5.QtCore import pyqtSlot, pyqtSignal, QThread
 
 import gui.ui.ui_MainWindow as ui_MainWindow
 from gui.worker import Worker
@@ -18,7 +18,6 @@ class SpecViewMainWindow(QMainWindow, ui_MainWindow.Ui_SpecView):
     Averaging over multiple shots occurs in the spectrometer thread.
     Background subtraction and everything else occurs in the main gui thread.
     """
-    # XXX if th background is shown and save is clicked, does it save the background?
     requestSpectrum = pyqtSignal()
     specClosed = pyqtSignal()
     requestExposureChange = pyqtSignal(float)
@@ -156,7 +155,7 @@ class SpecViewMainWindow(QMainWindow, ui_MainWindow.Ui_SpecView):
         self.thread = QThread()
         self.worker = Worker(spec)
         self.worker.moveToThread(self.thread)
-        # TODO fix crash when clicking connect and already connected
+        # TODO fix crash when clicking connect and already connected, for now disable connect
         # Connect signals and slots to control thread startup and shutdown
         self.worker.finished.connect(self.thread.quit)
         self.worker.finished.connect(self.worker.deleteLater)

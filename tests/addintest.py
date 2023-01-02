@@ -1,13 +1,19 @@
-""" Template for an addin script.
+import os
+import sys
+import numpy as np
+from addins.addin import Addin
 
-The addin script must define:
-    name: string that uniquely identifies the addin.
-    createAddin: constructor function that return the addin object.
-"""
+from PyQt5.QtWidgets import QAction
+
+scriptPath = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.realpath(os.path.join(scriptPath, '..')))
+
+
 import numpy as np
 
 
-name = 'Addin'
+
+name = 'Test-Addin'
 
 
 def createAddin(interface: object):
@@ -19,10 +25,10 @@ def createAddin(interface: object):
     Returns:
         addin: The instance of the addin object.
     """
-    return Addin(interface)
+    return AddinTest(interface)
 
 
-class Addin():
+class AddinTest(Addin):
     """ An addin is created when its checkbox is checked in the addin screen. 
     
     It is deleted when the checkbox is unchecked or the item is deleted from the list in the addin screen.
@@ -32,15 +38,21 @@ class Addin():
         Add actions to the main window by adding them to the mainWindow.toolbar
     """
     def __init__(self, specView):
-        self.sv = specView
+        super().__init__(specView)
+        self.actionTest = QAction()
+        self.actionTest.setObjectName("actionTest")
+        self.actionTest.setText("Test Action")
+        self.sv.addAction(self.actionTest)
+        self.sv.addSeparator()
+
+        pdi = self.sv.getPlotDataItem()
+        pdi.setFillBrush('r')
+        pdi.setFillLevel(500)
     
 
     def processSpectrum(self, lam: np.ndarray, I: np.ndarray) -> np.ndarray:
         """ Modifies the spectrum before displaying it. 
 
-        The spectral intensity is passed to this function after averaging and background subtraction.
-        Overwrite to modify the spectrum before it is displayed in SpecView window.
-        
         Args:
             lam: Wavelength of each point in the spectrum [nm].
             I: Intensity at each wavelength in the spectrum [counts].
@@ -49,10 +61,5 @@ class Addin():
     
 
     def removeAddin(self):
-        """ Cleans up after the addin.
-        
-        Should clean up the following:
-            Remove any modifications done to mainWindow.specPlot or mainWindow.plotDataItem.
-            Close any gui windows opened by the addin.
-        """
-        self.sv.cleanUp()
+        """ Cleans up after the addin. """
+        super().removeAddin()

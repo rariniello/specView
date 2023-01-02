@@ -55,6 +55,7 @@ Source: "{#MyAppDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs c
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Dirs]
+Name: "{#MyAppDir}\data"
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

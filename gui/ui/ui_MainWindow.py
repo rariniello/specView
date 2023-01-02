@@ -207,6 +207,7 @@ class Ui_SpecView(object):
         self.toolBar.setObjectName("toolBar")
         SpecView.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
         self.actionSettings = QtWidgets.QAction(SpecView)
+        self.actionSettings.setEnabled(False)
         icon5 = QtGui.QIcon()
         icon5.addPixmap(QtGui.QPixmap(":/icons/icons/gear.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionSettings.setIcon(icon5)
