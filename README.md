@@ -83,5 +83,5 @@ Distributed under the GNU GPL v3.0 license. See ``LICENSE`` for more information
 
 <!-- Markdown link & img dfn's -->
 [license]: https://img.shields.io/github/license/rariniello/specView
-[license-url]: https://github.com/rariniello/specView/LICENSE
+[license-url]: https://github.com/rariniello/specView/blob/main/LICENSE
 [wiki]: https://github.com/rariniello/specView/wiki
